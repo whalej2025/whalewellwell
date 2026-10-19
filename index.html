@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>韓式四格拍貼機 | Y2K Photo Booth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ff6fa8; --pink-deep:#e8458a; --pink-soft:#ffe3ef; --lilac:#e9ddff;
+  --mint:#d5f7e8; --ink:#4a2c3d; --muted:#9b7a8c; --card:#fffafc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink); min-height:100vh; padding:2rem 1rem 3rem; position:relative; overflow-x:hidden;
+  background:
+    radial-gradient(circle at 10% 10%,#ffd6e8 0,transparent 40%),
+    radial-gradient(circle at 90% 20%,var(--lilac) 0,transparent 40%),
+    radial-gradient(circle at 50% 100%,var(--mint) 0,transparent 45%),
+    #fff1f7;
+  background-attachment:fixed;
+}
+.deco{position:fixed;pointer-events:none;font-size:1.6rem;opacity:.55;animation:float 6s ease-in-out infinite;z-index:0}
+.deco:nth-child(1){top:8%;left:5%}
+.deco:nth-child(2){top:18%;right:7%;animation-delay:-2s}
+.deco:nth-child(3){bottom:12%;left:8%;animation-delay:-4s}
+.deco:nth-child(4){bottom:20%;right:5%;animation-delay:-1s}
+@keyframes float{50%{transform:translateY(-14px) rotate(8deg)}}
+
+.header{text-align:center;margin-bottom:2rem;position:relative;z-index:1}
+.header h1{
+  font-family:"Baloo 2","Noto Sans TC",sans-serif;font-weight:800;
+  font-size:clamp(2rem,6vw,3rem);color:var(--pink-deep);letter-spacing:2px;
+  text-shadow:3px 3px 0 #fff,5px 5px 0 var(--pink-soft);
+}
+.header p{color:var(--muted);margin-top:.4rem;font-size:.95rem}
+
+.layout{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:2rem;align-items:start;position:relative;z-index:1}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.preview{order:-1}}
+
+.panel,.preview{
+  background:var(--card);border:3px solid #fff;border-radius:28px;padding:1.5rem;
+  box-shadow:0 12px 30px rgba(232,69,138,.16),0 0 0 2px var(--pink-soft);
+}
+.group{margin-bottom:1.4rem}
+.title{
+  font-family:"Baloo 2","Noto Sans TC",sans-serif;font-weight:800;font-size:1.05rem;
+  color:var(--pink-deep);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;
+}
+.title .n{
+  display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:50%;
+  background:var(--pink);color:#fff;font-size:.8rem;
+}
+label{display:block;font-size:.85rem;font-weight:500;margin-bottom:.35rem;color:var(--muted)}
+
+.upload{
+  display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center;cursor:pointer;
+  border:2.5px dashed var(--pink);border-radius:20px;padding:1.1rem .8rem;background:var(--pink-soft);
+  font-weight:700;color:var(--pink-deep);transition:transform .15s,background .15s;
+}
+.upload:hover,.upload:focus-within{background:#ffd3e6;transform:scale(1.015)}
+.upload small{font-weight:400;color:var(--muted)}
+.upload input{position:absolute;width:1px;height:1px;opacity:0}
+.upload:focus-within{outline:3px solid var(--pink-deep);outline-offset:2px}
+
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.swatch{
+  width:36px;height:36px;border-radius:50%;border:3px solid #fff;cursor:pointer;
+  box-shadow:0 0 0 2px #e7cfdb;transition:transform .15s;
+}
+.swatch:hover{transform:scale(1.12)}
+.swatch.active{box-shadow:0 0 0 3px var(--pink-deep);transform:scale(1.12)}
+.swatch.custom{position:relative;overflow:hidden;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
+.swatch.custom input{position:absolute;inset:-10px;opacity:0;cursor:pointer;width:60px;height:60px}
+
+.chip{
+  padding:.5rem .9rem;border:2px solid #f3cde0;border-radius:999px;background:#fff;cursor:pointer;
+  font:600 .85rem "Noto Sans TC",sans-serif;color:var(--ink);transition:all .15s;
+}
+.chip:hover{border-color:var(--pink)}
+.chip.active{background:var(--pink);border-color:var(--pink);color:#fff}
+.swatch:focus-visible,.chip:focus-visible,.btn:focus-visible,input[type=text]:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px}
+
+input[type=text]{
+  width:100%;padding:.65rem .9rem;border:2px solid #f3cde0;border-radius:14px;
+  font:500 .92rem "Noto Sans TC",sans-serif;background:#fff;color:var(--ink);
+}
+.check{display:flex;align-items:center;gap:.5rem;margin-top:.7rem;font-size:.88rem;color:var(--ink);cursor:pointer}
+.check input{accent-color:var(--pink-deep);width:1.1rem;height:1.1rem}
+
+.btn{
+  width:100%;padding:.85rem;border:none;border-radius:999px;cursor:pointer;
+  font:700 1rem "Noto Sans TC",sans-serif;margin-top:.6rem;transition:transform .12s,box-shadow .12s;
+}
+.btn:active{transform:translateY(2px)}
+.btn-main{background:linear-gradient(135deg,#ff8fbd,var(--pink-deep));color:#fff;box-shadow:0 5px 0 #c42f72}
+.btn-main:hover{box-shadow:0 7px 0 #c42f72;transform:translateY(-2px)}
+.btn-main:active{box-shadow:0 2px 0 #c42f72;transform:translateY(3px)}
+.btn-soft{background:var(--lilac);color:#7a5cb5}
+.btn-soft:hover{background:#ddcdff}
+
+.preview{display:flex;flex-direction:column;align-items:center}
+canvas{
+  width:100%;max-width:340px;height:auto;border-radius:6px;cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.18);transform:rotate(-1.2deg);transition:transform .25s;
+}
+canvas:hover{transform:rotate(0)}
+.hint{font-size:.82rem;color:var(--muted);margin-top:1rem;text-align:center;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.deco{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+<span class="deco">🎀</span><span class="deco">✨</span><span class="deco">🍓</span><span class="deco">💖</span>
+
+<div class="header">
+  <h1>📸 Y2K PHOTO BOOTH</h1>
+  <p>上傳照片，打造專屬於你的韓式四格拍貼 ♡</p>
+</div>
+
+<div class="layout">
+  <div class="panel">
+    <div class="group">
+      <div class="title"><span class="n">1</span>上傳照片</div>
+      <label class="upload">
+        <span>🖼️ 點我選擇照片</span>
+        <small>可一次選 1～4 張，也能點右邊的格子單張更換</small>
+        <input type="file" id="image-input" accept="image/*" multiple>
+      </label>
+    </div>
+
+    <div class="group">
+      <div class="title"><span class="n">2</span>相框顏色</div>
+      <div class="row" id="colors">
+        <button class="swatch active" style="background:#2b2230" data-c="#2b2230" aria-label="經典黑" title="經典黑"></button>
+        <button class="swatch" style="background:#ffffff" data-c="#ffffff" aria-label="奶油白" title="奶油白"></button>
+        <button class="swatch" style="background:#ff9ec7" data-c="#ff9ec7" aria-label="Y2K 粉" title="Y2K 粉"></button>
+        <button class="swatch" style="background:#b8f0d8" data-c="#b8f0d8" aria-label="薄荷綠" title="薄荷綠"></button>
+        <button class="swatch" style="background:#d8c7ff" data-c="#d8c7ff" aria-label="薰衣草紫" title="薰衣草紫"></button>
+        <button class="swatch" style="background:#ffe6a3" data-c="#ffe6a3" aria-label="奶油黃" title="奶油黃"></button>
+        <span class="swatch custom" title="自選顏色"><input type="color" id="custom-color" value="#ff6fa8" aria-label="自選顏色"></span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="title"><span class="n">3</span>照片濾鏡</div>
+      <div class="row" id="filters">
+        <button class="chip active" data-f="none">原色</button>
+        <button class="chip" data-f="grayscale(100%) contrast(105%)">黑白</button>
+        <button class="chip" data-f="sepia(60%) contrast(110%)">復古</button>
+        <button class="chip" data-f="contrast(125%) brightness(105%)">高對比</button>
+        <button class="chip" data-f="brightness(110%) saturate(118%) contrast(94%)">粉嫩柔光</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="title"><span class="n">4</span>底欄文字</div>
+      <label for="label-text">自訂標籤文字</label>
+      <input type="text" id="label-text" value="MEMORIES ♥ PHOTO BOOTH" maxlength="28">
+      <label class="check"><input type="checkbox" id="deco-toggle" checked>加上愛心星星裝飾</label>
+    </div>
+
+    <button class="btn btn-main" id="download">⬇️ 下載拍貼相片</button>
+    <button class="btn btn-soft" id="reset">🔄 重置照片</button>
+  </div>
+
+  <div class="preview">
+    <canvas id="photo-canvas" width="800" height="2200" aria-label="四格拍貼預覽"></canvas>
+    <div class="hint">預覽會即時更新 ✨<br>點一下想換的格子，就能單獨更換那張照片</div>
+  </div>
+</div>
+
+<input type="file" id="slot-input" accept="image/*" hidden>
+
+<script>
+const canvas = document.getElementById('photo-canvas');
+const ctx = canvas.getContext('2d');
+const W = 400, H = 1100, S = canvas.width / W; // 邏輯尺寸 400x1100，以 2 倍解析度繪製
+const PAD = 22, PH = 222, GAP = 14, TOP = 24, PW = W - PAD * 2;
+
+let photos = [null, null, null, null];
+let frameColor = '#2b2230';
+let filter = 'none';
+let pickSlot = 0;
+
+const isDark = c => {
+  const n = parseInt(c.slice(1), 16);
+  const r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (r * 299 + g * 587 + b * 114) / 1000 < 140;
+};
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function loadFile(file, slot) {
+  const img = new Image();
+  img.onload = () => { photos[slot] = img; render(); };
+  img.src = URL.createObjectURL(file);
+}
+
+function render() {
+  const dark = isDark(frameColor);
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = frameColor;
+  ctx.fillRect(0, 0, W, H);
+
+  const showDeco = document.getElementById('deco-toggle').checked;
+  const ink = dark ? '#ffffff' : '#4a2c3d';
+
+  for (let i = 0; i < 4; i++) {
+    const y = TOP + i * (PH + GAP);
+    ctx.save();
+    roundRect(PAD, y, PW, PH, 16);
+    ctx.clip();
+    const img = photos[i];
+    if (img) {
+      ctx.filter = filter;
+      const ir = img.width / img.height, tr = PW / PH;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (ir > tr) { sw = img.height * tr; sx = (img.width - sw) / 2; }
+      else { sh = img.width / tr; sy = (img.height - sh) / 2; }
+      ctx.drawImage(img, sx, sy, sw, sh, PAD, y, PW, PH);
+      ctx.filter = 'none';
+    } else {
+      ctx.fillStyle = dark ? '#3d3145' : 'rgba(255,255,255,.65)';
+      ctx.fillRect(PAD, y, PW, PH);
+      ctx.fillStyle = dark ? '#b9a6c4' : '#c28aa5';
+      ctx.textAlign = 'center';
+      ctx.font = '700 34px sans-serif';
+      ctx.fillText('♡', W / 2, y + PH / 2 - 6);
+      ctx.font = '600 15px "Noto Sans TC", sans-serif';
+      ctx.fillText(`第 ${i + 1} 格　點我上傳`, W / 2, y + PH / 2 + 24);
+    }
+    ctx.restore();
+    // 照片白色細框
+    roundRect(PAD, y, PW, PH, 16);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(255,255,255,.9)';
+    ctx.stroke();
+  }
+
+  // 裝飾
+  if (showDeco) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = dark ? '#ff9ec7' : '#ff6fa8';
+    ctx.font = '22px sans-serif';
+    ctx.fillText('♥', PAD + 4, TOP + 6);
+    ctx.fillText('♥', W - PAD - 4, TOP + 4 * PH + 3 * GAP + 4);
+    ctx.fillStyle = dark ? '#ffe6a3' : '#f5b400';
+    ctx.font = '20px sans-serif';
+    ctx.fillText('★', W - PAD - 4, TOP + 6);
+    ctx.fillText('✦', PAD + 4, TOP + 4 * PH + 3 * GAP + 4);
+    ctx.fillStyle = dark ? '#ff9ec7' : '#ff6fa8';
+    ctx.font = '16px sans-serif';
+    ctx.fillText('♥  ✦  ♥  ✦  ♥', W / 2, H - 100);
+  }
+
+  // 底欄文字
+  const text = (document.getElementById('label-text').value || 'PHOTO BOOTH').toUpperCase();
+  const d = new Date();
+  const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = ink;
+  ctx.font = '800 20px "Baloo 2","Noto Sans TC",sans-serif';
+  ctx.fillText(text, W / 2, H - 62);
+  ctx.globalAlpha = .75;
+  ctx.font = '500 14px "Baloo 2","Noto Sans TC",sans-serif';
+  ctx.fillText(date, W / 2, H - 36);
+  ctx.globalAlpha = 1;
+}
+
+// 上傳（一次多張：從第一個空格開始填）
+document.getElementById('image-input').addEventListener('change', e => {
+  const files = [...e.target.files].slice(0, 4);
+  if (!files.length) return;
+  photos = [null, null, null, null];
+  files.forEach((f, i) => loadFile(f, i));
+  e.target.value = '';
+});
+
+// 點擊格子更換單張
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  const y = (e.clientY - r.top) / r.height * H;
+  const slot = Math.floor((y - TOP + GAP / 2) / (PH + GAP));
+  if (slot >= 0 && slot < 4) { pickSlot = slot; document.getElementById('slot-input').click(); }
+});
+document.getElementById('slot-input').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0], pickSlot);
+  e.target.value = '';
+});
+
+// 相框顏色
+document.getElementById('colors').addEventListener('click', e => {
+  const b = e.target.closest('.swatch[data-c]');
+  if (!b) return;
+  document.querySelectorAll('#colors .swatch').forEach(s => s.classList.remove('active'));
+  b.classList.add('active');
+  frameColor = b.dataset.c;
+  render();
+});
+document.getElementById('custom-color').addEventListener('input', e => {
+  document.querySelectorAll('#colors .swatch').forEach(s => s.classList.remove('active'));
+  e.target.parentElement.classList.add('active');
+  frameColor = e.target.value;
+  render();
+});
+
+// 濾鏡
+document.getElementById('filters').addEventListener('click', e => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  document.querySelectorAll('#filters .chip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active');
+  filter = b.dataset.f;
+  render();
+});
+
+document.getElementById('label-text').addEventListener('input', render);
+document.getElementById('deco-toggle').addEventListener('change', render);
+
+document.getElementById('download').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.download = 'my-photo-booth.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+  photos = [null, null, null, null];
+  render();
+});
+
+render();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+</script>
+</body>
+</html>
